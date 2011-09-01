@@ -1,0 +1,198 @@
+Metric Learning to Rank (mlr-1.0)
+http://www-cse.ucsd.edu/~bmcfee/code/mlr/
+
+Brian McFee <bmcfee@cs.ucsd.edu>, 2010.
+
+This code is distributed under the GNU GPL license.  See LICENSE for details, 
+or http://www.gnu.org/licenses/gpl-3.0.txt .
+
+
+
+INTRODUCTION
+------------
+This package contains the MATLAB code for Metric Learning to Rank (MLR).  
+The latest version of this software can be found at the URL above.
+
+The software included here implements the algorithm described in
+
+[1] Mcfee, Brian and Lanckriet, G.R.G.  Metric learning to rank.  
+    Proceedings of the 27th annual International Conference 
+    on Machine Learning (ICML), 2010.
+
+Please cite this paper if you use this code.
+
+
+
+INSTALLATION
+------------
+
+1. Requirements
+
+This software requires MATLAB R2007a or later.  Because it makes extensive use
+of the "bsxfun" function, earlier versions of Matlab will not work.
+
+If you have an older Matlab installation, you can install an alternative bsxfun
+implementation by going to
+
+http://www.mathworks.com/matlabcentral/fileexchange/23005 ,
+
+however, this may not work, and it will certainly be slower than the native
+bsxfun implementation.
+
+
+2. Compiling MEX functions
+
+MLR includes two auxiliary functions "cummax" and "binarysearch" to accelerate
+certain steps of the optimization procedure.  The source code for these
+functions is located in the "util" subdirectory.
+
+A makefile is provided, so that (on Unix systems), you can simply type
+
+cd util
+make
+cd ..
+
+
+3. Running the demo
+
+To test the installation, run 
+
+    mlr_demo
+
+from within Matlab.  The demo generates a random training/test split of the Wine data set
+http://archive.ics.uci.edu/ml/datasets/Wine
+and learns a metric with MLR.  Both native and learned metrics are displayed in a figure
+with a scatter plot.
+
+
+TRAINING
+--------
+
+There are several modes of operation for training metrics with MLR.  In the
+simplest mode, training data is contained in a matrix X (each column is a
+training vector), and Y contains the labels/relevance for the training data
+(see below).
+
+   [W, Xi, D] = mlr_train(X, Y, C,...)
+
+       X = d*n data matrix
+       Y = either n-by-1 label of vectors
+           OR
+           n-by-2 cell array where 
+               Y{q,1} contains relevant indices for q, and
+               Y{q,2} contains irrelevant indices for q
+       
+       C >= 0 slack trade-off parameter (default=1)
+
+       W   = the learned metric, i.e., the inner product matrix of the learned 
+                space can be computed by X' * W * X
+       Xi  = slack value on the learned metric (see [1])
+       D   = diagnostics
+
+
+By default, MLR optimizes for Area Under the ROC Curve (AUC).  This can be
+changed by setting the "LOSS" parameter to one of several ranking loss
+measures:
+
+   [W, Xi, D] = mlr_train(X, Y, C, LOSS)
+       where LOSS is one of:
+           'AUC':      Area under ROC curve (default)
+           'KNN':      KNN accuracy*
+           'Prec@k':   Precision-at-k
+           'MAP':      Mean Average Precision
+           'MRR':      Mean Reciprocal Rank
+           'NDCG':     Normalized Discounted Cumulative Gain
+
+    *Note:  KNN is correct only for binary classification problems; in 
+            practice, Prec@k is usually a better alternative.
+
+
+For KNN/Prec@k/NDCG, a threshold k may be set to determine the truncation of
+the ranked list.  Thiscan be done by setting the k parameter:
+
+   [W, Xi, D] = mlr_train(X, Y, C, LOSS, k)
+       where k is the number of neighbors for Prec@k or NDCG
+       (default=3)
+
+
+By default, MLR regularizes the metric W by the trace, i.e., the 1-norm of the
+eigenvalues.  This can be changed to one of several alternatives:
+
+   [W, Xi, D] = mlr_train(X, Y, C, LOSS, k, REG)
+       where REG defines the regularization on W, and is one of:
+           0:          no regularization
+           1:          1-norm: trace(W)            (default)
+           2:          2-norm: trace(W' * W)
+           3:          Kernel: trace(W * X), assumes X is square 
+                                and positive-definite
+
+    The last setting, "kernel", is appropriate for regularizing metrics learned
+    from kernel matrices.
+
+
+W corresponds to a linear projection matrix (rotation and scaling).  To learn a
+restricted model which may only scale, but not rotate the data, W can be
+constrained to diagonal matrices by setting the "Diagonal" parameter to 1:
+
+   [W, Xi, D] = mlr_train(X, Y, C, LOSS, k, REG, Diagonal)
+       Diagonal = 0:   learn a full d-by-d W       (default)
+       Diagonal = 1:   learn diagonally-constrained W (d-by-1)
+       
+    Note: the W returned in this case will be the d-by-1 vector corresponding
+          to the main diagonal of a full metric, not the full d-by-d matrix.
+
+
+
+Finally, we provide a stochastic gradient descent implementation to handle
+large-scale problems.  Rather than estimating gradients from the entire
+training set, this variant uses a random subset of size B (see below) at each
+call to the cutting plane subroutine.  This results in faster, but less
+accurate, optimization:
+
+   [W, Xi, D] = mlr_train(X, Y, C, LOSS, k, REG, Diagonal, B)
+       where B > 0 enables stochastic optimization with batch size B
+
+
+
+TESTING
+-------
+
+Once a metric has been trained by "mlr_train", you can evaluate performance
+across all measures by using the "mlr_test" function:
+
+   Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
+
+       W       = d-by-d positive semi-definite matrix
+       test_k  = vector of k-values to use for KNN/Prec@k/NDCG
+       Xtrain  = d-by-n matrix of training data
+       Ytrain  = n-by-1 vector of training labels
+                   OR
+                 n-by-2 cell array where
+                   Y{q,1} contains relevant indices (in 1..n) for point q
+                   Y{q,2} contains irrelevant indices (in 1..n) for point q
+       Xtest   = d-by-m matrix of testing data
+       Ytest   = m-by-1 vector of training labels, or m-by-2 cell array 
+                   If using the cell version, indices correspond to
+                   the training set, and must lie in the range (1..n)
+               
+
+   The output structure Perf contains the mean score for:
+       AUC, KNN, Prec@k, MAP, MRR, NDCG,
+   as well as the effective dimensionality of W, and
+   the best-performing k-value for KNN, Prec@k, and NDCG.
+
+   For information retrieval settings, consider Xtrain/Ytrain as the corpus
+   and Xtest/Ytest as the queries.
+
+By testing with 
+    Wnative = eye(size(X,1))
+you can quickly evaluate the performance of the native (Euclidean) metric.
+
+
+FEEDBACK
+--------
+
+Please send any bug reports, source code contributions, etc. to 
+
+Brian McFee <bmcfee@cs.ucsd.edu>
+
