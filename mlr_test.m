@@ -113,10 +113,6 @@ function [D,I] = mlr_test_distance(W, Xtrain, Xtest, Testnorm)
         % We're in a simple diagonal case
         D = setDistanceDiagMKL([Xtrain Xtest], W, nTrain + (1:nTest), 1:nTrain);
 
-    elseif size(W,1) == nKernel && size(W,2) == nKernel && size(W,3) == nTrain
-        % We're in DOD mode
-        D = setDistanceDODMKL([Xtrain Xtest], W, nTrain + (1:nTest), 1:nTrain);
-
     else
         % Error?
         error('Cannot determine metric mode.');
