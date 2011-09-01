@@ -167,25 +167,14 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
             SETDISTANCE = @setDistanceDiag;
             Regularizer = 'Trace';
         else
-            if Diagonal > 1
-                INIT        = @initializeDODMKL;
-                REG         = @regularizeMKLDOD;
-                FEASIBLE    = @feasibleDODMKL;
-                CPGRADIENT  = @cpGradientDODMKL;
-                DISTANCE    = @distanceDODMKL;
-                SETDISTANCE = @setDistanceDODMKL;
-                LOSS        = @lossHingeDODMKL;
-                Regularizer = 'Trace';
-            else
-                INIT        = @initializeDiagMKL;
-                REG         = @regularizeMKLDiag;
-                FEASIBLE    = @feasibleDiagMKL;
-                CPGRADIENT  = @cpGradientDiagMKL;
-                DISTANCE    = @distanceDiagMKL;
-                SETDISTANCE = @setDistanceDiagMKL;
-                LOSS        = @lossHingeDiagMKL;
-                Regularizer = 'Trace';
-            end
+            INIT        = @initializeDiagMKL;
+            REG         = @regularizeMKLDiag;
+            FEASIBLE    = @feasibleDiagMKL;
+            CPGRADIENT  = @cpGradientDiagMKL;
+            DISTANCE    = @distanceDiagMKL;
+            SETDISTANCE = @setDistanceDiagMKL;
+            LOSS        = @lossHingeDiagMKL;
+            Regularizer = 'Trace';
         end
     end
 
@@ -201,8 +190,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
                         REG         = @regularizeMKLFull;
                     elseif Diagonal == 1
                         REG         = @regularizeMKLDiag;
-                    elseif Diagonal == 2
-                        REG         = @regularizeMKLDOD;
                     end
                 else
                     if Diagonal 
@@ -227,8 +214,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
                         REG         = @regularizeMKLFull;
                     elseif Diagonal == 1
                         REG         = @regularizeMKLDiag;
-                    elseif Diagonal == 2
-                        REG         = @regularizeMKLDOD;
                     end
                 else
                     if Diagonal
@@ -270,7 +255,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     global DEBUG;
     
-    DEBUG = 1;
+    DEBUG = 0;
 
     %%%
     % Timer to eliminate old constraints
