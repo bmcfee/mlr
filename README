@@ -1,12 +1,7 @@
-TODO:   2011-08-31 19:24:45 by Brian McFee <bmcfee@cs.ucsd.edu>
-update this for 1.1
-    MKL, cite CVPR paper
- 
-
-Metric Learning to Rank (mlr-1.0)
+Metric Learning to Rank (mlr-1.1)
 http://www-cse.ucsd.edu/~bmcfee/code/mlr/
 
-Brian McFee <bmcfee@cs.ucsd.edu>, 2010.
+Brian McFee <bmcfee@cs.ucsd.edu>, 2010-2011.
 
 This code is distributed under the GNU GPL license.  See LICENSE for details, 
 or http://www.gnu.org/licenses/gpl-3.0.txt .
@@ -25,6 +20,7 @@ The software included here implements the algorithm described in
     on Machine Learning (ICML), 2010.
 
 Please cite this paper if you use this code.
+
 
 
 
@@ -60,9 +56,13 @@ cd ..
 
 3. Running the demo
 
-To test the installation, run 
+To test the installation, first add the path to MLR to your Matlab environment:
 
-    mlr_demo
+    >> addpath(genpath('/path/to/mlr-1.1'));
+
+Then, run the demo script:
+
+    >> mlr_demo
 
 from within Matlab.  The demo generates a random training/test split of the Wine data set
 http://archive.ics.uci.edu/ml/datasets/Wine
@@ -190,9 +190,36 @@ across all measures by using the "mlr_test" function:
    and Xtest/Ytest as the queries.
 
 By testing with 
-    Wnative = eye(size(X,1))
+    Wnative = []
 you can quickly evaluate the performance of the native (Euclidean) metric.
 
+
+MULTIPLE KERNEL LEARNING
+------------------------
+
+As of version 1.1, MLR supports learning (multiple) kernel metrics, using the method described in
+
+[2] Galleguillos, Carolina, McFee, Brian, Belongie, Serge, and Lanckriet, G.R.G.  
+    From region similarity to category discovery.
+    Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2011.
+
+For m kernels, input data must be provided in the form of an n-by-n-by-m matrix K, where K(:,:,i) 
+contains the i'th kernel matrix of the training data.  Training the metric is similar to the 
+single-kernel case, except that the regularization parameter should be set to 3 (kernel regularization), 
+eg:
+
+    >> [W, Xi, D] = mlr_train(K, Y, C, 'auc', 1, 3);
+
+returns an n-by-n-by-m matrix W which can be used directly with mlr_test.  Multiple kernel learning also supports
+diagonally constrained learning, eg:
+    
+    >> [W, Xi, D] = mlr_train(K, Y, C, 'auc', 1, 3, 1);
+
+returns an n-by-m matrix W, where W(:,i) is the main diagonal of the i'th kernels metric.  Again, this W can be fed
+directly into mlr_test.
+
+For testing with multiple kernel data, Ktest should be an n-by-nTest-by-m matrix, where K(:,:,i) is the
+training-by-test slice of the i'th kernel matrix.
 
 FEEDBACK
 --------
