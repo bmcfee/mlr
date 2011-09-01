@@ -4,17 +4,10 @@
  *  cumulative maximum (analogous to cumsum)
  *
  * Compile: 
- *  mex -DNAN_EQUALS_ZERO cummax.c
+ *  mex cummax.c
  */
 
 #include "mex.h"
-
-
-#if NAN_EQUALS_ZERO
-#define IsNonZero(d) ((d) != 0.0 || mxIsNan(d))
-#else
-#define IsNonZero(d) ((d) != 0.0)
-#endif
 
 void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 {
