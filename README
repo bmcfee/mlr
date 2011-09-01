@@ -58,14 +58,14 @@ cd ..
 
 To test the installation, first add the path to MLR to your Matlab environment:
 
-    >> addpath(genpath('/path/to/mlr-1.1'));
+    >> addpath(genpath('/path/to/mlr/'));
 
 Then, run the demo script:
 
     >> mlr_demo
 
 from within Matlab.  The demo generates a random training/test split of the Wine data set
-http://archive.ics.uci.edu/ml/datasets/Wine
+(http://archive.ics.uci.edu/ml/datasets/Wine)
 and learns a metric with MLR.  Both native and learned metrics are displayed in a figure
 with a scatter plot.
 

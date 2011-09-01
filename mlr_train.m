@@ -47,9 +47,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     TIME_START = tic();
 
-%     addpath('cuttingPlane', 'distance', 'feasible', 'initialize', 'loss', ...
-%             'metricPsi', 'regularize', 'separationOracle', 'util');
-
     global C;
     C = Cslack;
 
