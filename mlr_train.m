@@ -65,7 +65,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     %%%
     % Default options:
 
-    global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT METRICK;
+    global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT;
 
     CP          = @cuttingPlaneFull;
     SO          = @separationOracleAUC;
@@ -79,7 +79,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         DISTANCE    = @distanceFull;
         SETDISTANCE = @setDistanceFull;
         LOSS        = @lossHinge;
-        Regularizer = 'TraceRCP';
+        Regularizer = 'Trace';
     else
         INIT        = @initializeFullMKL;
         REG         = @regularizeMKLFull;
@@ -148,8 +148,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     if nargin > 4
         k = varargin{2};
     end
-
-    METRICK = k;
 
     Diagonal = 0;
     if nargin > 6 & varargin{4} > 0
