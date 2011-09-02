@@ -1,6 +1,6 @@
 function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, SAMPLES, ClassScores)
 %
-% [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Yp, Yn, batchSize, SAMPLES)
+% [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Yp, Yn, batchSize, SAMPLES, ClassScores)
 %
 %   k           = k parameter for the SO
 %   X           = d*n data matrix
@@ -9,6 +9,7 @@ function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, S
 %   Yn          = cell-array of irrelevant results for each point
 %   batchSize   = number of points to use in the constraint batch
 %   SAMPLES     = indices of valid points to include in the batch
+%   ClassScores = structure for synthetic constraints
 %
 %   dPsi        = dPsi vector for this batch
 %   M           = mean loss on this batch

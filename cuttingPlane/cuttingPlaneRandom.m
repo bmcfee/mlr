@@ -15,7 +15,7 @@ function [dPsi, M, SO_time] = cuttingPlaneRandom(k, X, W, Ypos, Yneg, batchSize,
 %   M           = mean loss on this batch
 %   SO_time     = time spent in separation oracle
 
-    global SO PSI DISTANCE SETDISTANCE CPGRADIENT;
+    global SO PSI SETDISTANCE CPGRADIENT;
 
     [d,n]   = size(X);
 
@@ -87,7 +87,7 @@ function [dPsi, M, SO_time] = cuttingPlaneRandom(k, X, W, Ypos, Yneg, batchSize,
                 S(:,i)          = S(:,i) + snew;
                 S(dIndex)       = S(dIndex) - snew';
 
-                yp(i) = 1;
+                yp(i)           = 1;
             end
         end
     end
