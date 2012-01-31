@@ -322,6 +322,9 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         dbprint(1, 'STOCHASTIC OPTIMIZATION: Batch size is %d/%d', batchSize, n);
     end
 
+    global OPTIONS;
+    OPTIONS = optimset('TolX', 1e-4, 'TolFun', 1e-4, 'Display', 'off', 'LargeScale', 'off');
+
     while 1
         dbprint(1, 'Round %03d', Diagnostics.num_calls_solver);
         % Generate a constraint set
@@ -355,7 +358,8 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         dbprint(1, 'Calling solver...');
         PsiClock                        = PsiClock + 1;
         Solver_time                     = tic();
-            [W, Xi, Dsolver]            = mlr_solver(C, Margins, W, X);
+%             [W, Xi, Dsolver]            = mlr_solver(C, Margins, W, X);
+            [W, Xi, Dsolver]            = mlr_admm(C, Margins, W, X);
         Diagnostics.time_solver         = Diagnostics.time_solver + toc(Solver_time);
         Diagnostics.num_calls_solver    = Diagnostics.num_calls_solver + 1;
 

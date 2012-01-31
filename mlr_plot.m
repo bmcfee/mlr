@@ -52,7 +52,8 @@ function mlr_plot(X, Y, W, D)
 
 function pcaplot(X, W, Y, CODES)
     if size(X,3) == 1
-        A = kernelCenter(X' * W * X);
+%         A = kernelCenter(X' * W * X);
+        A = X' * W * X;
     else
 %         A = zeros(size(X,1));
         A = 0;

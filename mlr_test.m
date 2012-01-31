@@ -137,7 +137,7 @@ function dimension = mlr_test_dimension(W, nTrain, nKernel)
     %   MKL, diag-off-diag:         W = m-by-m-by-n
     
     
-    if size(W,2) == nTrain
+    if size(W,1) == size(W,2)
         dim = [];
         for i = 1:nKernel
             [v,d]   = eig(0.5 * (W(:,:,i) + W(:,:,i)'));

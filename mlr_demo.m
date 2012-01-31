@@ -32,7 +32,7 @@ function mlr_demo()
     % Scatter-plot
     figure;
     subplot(1,2,1), drawData(eye(d), Xtrain, Ytrain, Xtest, Ytest), title('Native metric (z-scored)');
-    subplot(1,2,2), drawData(W, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR-P@k)');
+    subplot(1,2,2), drawData(W, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR-AUC)');
 
     Diagnostics
 
