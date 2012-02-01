@@ -65,7 +65,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     %%%
     % Default options:
 
-    global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT STRUCTKERNEL DUALW INIT;
+    global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT;
 
     CP          = @cuttingPlaneFull;
     SO          = @separationOracleAUC;
@@ -74,8 +74,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     if ~MKL
         INIT        = @initializeFull;
         REG         = @regularizeTraceFull;
-        STRUCTKERNEL= @structKernelLinear;
-        DUALW       = @dualWLinear;
         FEASIBLE    = @feasibleFull;
         CPGRADIENT  = @cpGradientFull;
         DISTANCE    = @distanceFull;
@@ -85,8 +83,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     else
         INIT        = @initializeFullMKL;
         REG         = @regularizeMKLFull;
-        STRUCTKERNEL= @structKernelMKL;
-        DUALW       = @dualWMKL;
         FEASIBLE    = @feasibleFullMKL;
         CPGRADIENT  = @cpGradientFullMKL;
         DISTANCE    = @distanceFullMKL;
@@ -160,8 +156,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         if ~MKL
             INIT        = @initializeDiag;
             REG         = @regularizeTraceDiag;
-            STRUCTKERNEL= @structKernelDiag;
-            DUALW       = @dualWDiag;
             FEASIBLE    = @feasibleDiag;
             CPGRADIENT  = @cpGradientDiag;
             DISTANCE    = @distanceDiag;
@@ -170,8 +164,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         else
             INIT        = @initializeDiagMKL;
             REG         = @regularizeMKLDiag;
-            STRUCTKERNEL= @structKernelDiagMKL;
-            DUALW       = @dualWDiagMKL;
             FEASIBLE    = @feasibleDiagMKL;
             CPGRADIENT  = @cpGradientDiagMKL;
             DISTANCE    = @distanceDiagMKL;
@@ -191,22 +183,14 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
                 if MKL
                     if Diagonal == 0
                         REG         = @regularizeMKLFull;
-                        STRUCTKERNEL= @structKernelMKL;
-                        DUALW       = @dualWMKL;
                     elseif Diagonal == 1
                         REG         = @regularizeMKLDiag;
-                        STRUCTKERNEL= @structKernelDiagMKL;
-                        DUALW       = @dualWDiagMKL;
                     end
                 else
                     if Diagonal 
                         REG         = @regularizeTraceDiag;
-                        STRUCTKERNEL= @structKernelDiag;
-                        DUALW       = @dualWDiag;
                     else
                         REG         = @regularizeTraceFull;
-                        STRUCTKERNEL= @structKernelLinear;
-                        DUALW       = @dualWLinear;
                     end
                 end
                 Regularizer = 'Trace';
@@ -218,29 +202,19 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
                     REG         = @regularizeTwoFull;
                 end
                 Regularizer = '2-norm';
-                error('MLR:REGULARIZER', '2-norm regularization no longer supported');
-                
 
             case {3}
                 if MKL
                     if Diagonal == 0
                         REG         = @regularizeMKLFull;
-                        STRUCTKERNEL= @structKernelMKL;
-                        DUALW       = @dualWMKL;
                     elseif Diagonal == 1
                         REG         = @regularizeMKLDiag;
-                        STRUCTKERNEL= @structKernelDiagMKL;
-                        DUALW       = @dualWDiagMKL;
                     end
                 else
                     if Diagonal
                         REG         = @regularizeMKLDiag;
-                        STRUCTKERNEL= @structKernelDiagMKL;
-                        DUALW       = @dualWDiagMKL;
                     else
                         REG         = @regularizeKernel;
-                        STRUCTKERNEL= @structKernelMKL;
-                        DUALW       = @dualWMKL;
                     end
                 end
                 Regularizer = 'Kernel';
@@ -286,18 +260,8 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     % Convergence criteria for worst-violated constraint
     E = 1e-3;
     
-    %%%
-    % Augmented lagrangian factor
-    RHO = 1;
-
-    %XXX:    2012-01-31 21:29:50 by Brian McFee <bmcfee@cs.ucsd.edu>
-    % no longer belongs here
     % Initialize
     W           = INIT(X);
-
-    global ADMM_Z ADMM_U;
-    ADMM_Z      = 0 * W;
-    ADMM_U      = ADMM_Z;
 
     ClassScores = [];
 
@@ -353,8 +317,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     Xi          = -Inf;
     Margins     = [];
-    H           = [];
-    Q           = [];
 
     if STOCHASTIC
         dbprint(1, 'STOCHASTIC OPTIMIZATION: Batch size is %d/%d', batchSize, n);
@@ -377,8 +339,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         Margins     = cat(1, Margins,   Mnew);
         PsiR        = cat(1, PsiR,      PsiNew);
         PsiClock    = cat(1, PsiClock,  0);
-        H           = expandKernel(H);
-        Q           = expandRegularizer(Q, X, W);
 
         dbprint(2, '\n\tActive constraints    : %d',            length(PsiClock));
         dbprint(2, '\t           Mean loss  : %0.4f',           Mnew);
@@ -395,7 +355,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         dbprint(1, 'Calling solver...');
         PsiClock                        = PsiClock + 1;
         Solver_time                     = tic();
-            [W, Xi, Dsolver]            = mlr_admm(C, X, Margins, H, Q, RHO);
+            [W, Xi, Dsolver]            = mlr_solver(C, Margins, W, X);
         Diagnostics.time_solver         = Diagnostics.time_solver + toc(Solver_time);
         Diagnostics.num_calls_solver    = Diagnostics.num_calls_solver + 1;
 
@@ -409,8 +369,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         Margins     = Margins(GC);
         PsiR        = PsiR(GC);
         PsiClock    = PsiClock(GC);
-        H           = H(GC, GC);
-        Q           = Q(GC);
 
         Diagnostics.num_constraints = cat(1, Diagnostics.num_constraints, length(PsiR));
     end
@@ -421,32 +379,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     Diagnostics.time_total = toc(TIME_START);
 end
 
-function H = expandKernel(H)
-
-    global STRUCTKERNEL;
-    global PsiR;
-
-    m = length(H);
-    H = padarray(H, [1 1], 0, 'post');
-
-    for i = 1:m+1
-        H(i,m+1)    = STRUCTKERNEL( PsiR{i}, PsiR{m+1} );
-        H(m+1, i)   = H(i, m+1);
-    end
-end
-
-function Q = expandRegularizer(Q, K, W)
-
-    % FIXME:  2012-01-31 21:34:15 by Brian McFee <bmcfee@cs.ucsd.edu>
-    %  does not support unregularized learning
-
-    global PsiR;
-    global STRUCTKERNEL REG;
-
-    m           = length(Q);
-    Q(m+1,1)    = STRUCTKERNEL(REG(W,K,1), PsiR{m+1});
-
-end
 
 function ClassScores = synthesizeRelevance(Y)
 
