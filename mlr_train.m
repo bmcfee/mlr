@@ -276,7 +276,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     global DEBUG;
     
-    DEBUG = 1;
+    DEBUG = 2;
 
     %%%
     % Timer to eliminate old constraints
@@ -296,8 +296,8 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     W           = INIT(X);
 
     global ADMM_Z ADMM_U;
-    ADMM_Z      = 0 * W;
-    ADMM_U      = ADMM_Z;
+    ADMM_Z      = W;
+    ADMM_U      = 0 * ADMM_Z;
 
     ClassScores = [];
 
@@ -382,6 +382,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
         dbprint(2, '\n\tActive constraints    : %d',            length(PsiClock));
         dbprint(2, '\t           Mean loss  : %0.4f',           Mnew);
+        dbprint(2, '\t  Current loss Xi     : %0.4f',           Xi);
         dbprint(2, '\t  Termination -Xi < E : %0.4f <? %.04f\n', Termination - Xi, E);
         
         Diagnostics.gap     = cat(1, Diagnostics.gap,   Termination - Xi);

@@ -29,8 +29,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 
 
     % Convergence settings
-    MAX_ITER    = 50;
-    ABSTOL      = 1e-4 * sqrt(numel(ADMM_Z));
+    MAX_ITER    = 10;
+    ABSTOL      = 1e-3 * sqrt(numel(ADMM_Z));
     RELTOL      = 1e-2;
     stopcriteria= 'MAX STEPS';
 
@@ -55,7 +55,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
         for i = 1:numConstraints
             Gamma(i) = STRUCTKERNEL(ADMM_Z-ADMM_U, PsiR{i}, 1);
         end
-        alpha   = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha);
+        alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha);
 
         %%%
         % 3) convert back to W
@@ -135,7 +135,7 @@ function alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha)
     %%%
     % 2) solve the QP
     %
-    alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, [], 'tolpiv', 1e-5);
+    alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
 
     %%%
     % 3) update the Psi clock

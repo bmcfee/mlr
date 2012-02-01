@@ -19,9 +19,10 @@ function mlr_demo()
 
 
     % Optimize W for AUC
-    C = 10e4;
+    C = 1e4;
     display(sprintf('Training with C=%.2e, Delta=AUC', C));
-    [W, Xi, Diagnostics] = mlr_train(Xtrain, Ytrain, C, 'auc');
+    [W, Xi, Diagnostics] = mlr_train(Xtrain, Ytrain, C, 'prec@k', 10);
+%     [W, Xi, Diagnostics] = mlr_train_primal(Xtrain, Ytrain, C, 'prec@k', 10);
 
     display('Test performance in the native (normalized) metric');
     mlr_test(eye(d), 3, Xtrain, Ytrain, Xtest, Ytest)
