@@ -51,15 +51,9 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
         end
 
         % Reconstruct the S matrix from TS
-        for i = 1:batchSize
-            % TODO:   2012-02-01 22:04:03 by Brian McFee <bmcfee@cs.ucsd.edu>
-            % is there a matrix multiply that can do this? 
-
-            j           = SAMPLES(i);
-            S(j,:)      = S(j,:)    + TS(i,:);
-            S(:,j)      = S(:,j)    + TS(i,:)';
-            S(dIndex)   = S(dIndex) - TS(i,:);
-        end
+        S(SAMPLES,:)    = TS;
+        S(:,SAMPLES)    = S(:,SAMPLES) + TS';
+        S(dIndex)       = S(dIndex) - sum(TS, 1);
     else
 
         % Do it class-wise for efficiency
@@ -87,12 +81,10 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
                 M           = M + li /batchSize;
                 TS(x,:)     = PSI(i, yi', n, Ypos, Yneg);
             end
-            for i = 1:length(points)
-                j           = points(i);
-                S(j,:)      = S(j,:)    + TS(i,:);
-                S(:,j)      = S(:,j)    + TS(i,:)';
-                S(dIndex)   = S(dIndex) - TS(i,:);
-            end
+
+            S(points,:) = TS;
+            S(:,points) = S(:,points) + TS';
+            S(dIndex)   = S(dIndex) - sum(TS, 1);
         end
     end
 
