@@ -67,7 +67,8 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT STRUCTKERNEL DUALW INIT;
 
-    CP          = @cuttingPlaneFull;
+%     CP          = @cuttingPlaneFull;
+    CP          = @cuttingPlaneParallel;
     SO          = @separationOracleAUC;
     PSI         = @metricPsiPO;
 

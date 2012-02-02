@@ -19,10 +19,10 @@ function mlr_demo()
 
 
     % Optimize W for AUC
-    C = 1e4;
-    display(sprintf('Training with C=%.2e, Delta=AUC', C));
-    [W, Xi, Diagnostics] = mlr_train(Xtrain, Ytrain, C, 'prec@k', 10);
-%     [W, Xi, Diagnostics] = mlr_train_primal(Xtrain, Ytrain, C, 'prec@k', 10);
+    C = 1e2;
+    display(sprintf('Training with C=%.2e, Delta=mAP', C));
+    [W, Xi, Diagnostics] = mlr_train(Xtrain, Ytrain, C, 'map');
+%     [W, Xi, Diagnostics] = mlr_train_primal(Xtrain, Ytrain, C, 'map');
 
     display('Test performance in the native (normalized) metric');
     mlr_test(eye(d), 3, Xtrain, Ytrain, Xtest, Ytest)
@@ -33,7 +33,7 @@ function mlr_demo()
     % Scatter-plot
     figure;
     subplot(1,2,1), drawData(eye(d), Xtrain, Ytrain, Xtest, Ytest), title('Native metric (z-scored)');
-    subplot(1,2,2), drawData(W, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR-AUC)');
+    subplot(1,2,2), drawData(W, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR-mAP)');
 
     Diagnostics
 

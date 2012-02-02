@@ -6,7 +6,7 @@ function W = dualWDiag(alpha, Z, U, RHO, K)
 
     W = Z - U - ones(d,1) / (d * RHO);
     for i = 1:m
-        W = W + alpha(i) * diag(PsiR{i}) / RHO;
+        W = W + alpha(i) * PsiR{i} / RHO;
     end
 
 end
