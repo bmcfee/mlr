@@ -74,6 +74,7 @@ function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, S
                 SO_time     = SO_time + toc(SO_start);
 
                 M           = M + li /batchSize;
+
                 snew        = PSI(i, yi', n, Ypos, Yneg);
                 S(i,:)      = S(i,:) + snew';
                 S(:,i)      = S(:,i) + snew;

@@ -26,35 +26,38 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
 
     SO_time = 0;
 
+    TS  = zeros(batchSize, n);
     if isempty(ClassScores)
-        TS  = zeros(batchSize, n);
         parfor i = 1:batchSize
             if i <= length(SAMPLES)
-                    % FIXME:  2012-02-01 21:42:10 by Brian McFee <bmcfee@cs.ucsd.edu>
-                    %  
-%                 i = SAMPLES(i);
+                j = SAMPLES(i);
 
-                if isempty(Ypos{i})
+                if isempty(Ypos{j})
                     continue;
                 end
                 if isempty(Yneg)
                     % Construct a negative set 
-                    Ynegative = setdiff((1:n)', [i ; Ypos{i}]);
+                    Ynegative = setdiff((1:n)', [j ; Ypos{j}]);
                 else
-                    Ynegative = Yneg{i};
+                    Ynegative = Yneg{j};
                 end
                 SO_start        = tic();
-                    [yi, li]    =   SO(i, D, Ypos{i}, Ynegative, k);
+                    [yi, li]    =   SO(j, D, Ypos{j}, Ynegative, k);
                 SO_time         = SO_time + toc(SO_start);
 
                 M               = M + li /batchSize;
-                TS(i,:)         = PSI(i, yi', n, Ypos{i}, Ynegative);
+                TS(i,:)         = PSI(j, yi', n, Ypos{j}, Ynegative);
             end
         end
-        S(dIndex) = 0;
-        for i = 1:n
-            S(i,:)      = S(i,:) + TS(i,:);
-            S(:,i)      = S(:,i) + TS(i,:)';
+
+        % Reconstruct the S matrix from TS
+        for i = 1:batchSize
+            % TODO:   2012-02-01 22:04:03 by Brian McFee <bmcfee@cs.ucsd.edu>
+            % is there a matrix multiply that can do this? 
+
+            j           = SAMPLES(i);
+            S(j,:)      = S(j,:)    + TS(i,:);
+            S(:,j)      = S(:,j)    + TS(i,:)';
             S(dIndex)   = S(dIndex) - TS(i,:);
         end
     else
@@ -70,21 +73,25 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
             if length(points) <= 1
                 continue;
             end
+
+            TS      = zeros(length(points), n);
             for x = 1:length(points)
                 i           = points(x);
-                yp(i)       = 0;
-                Ypos        = find(yp);
+                yl          = yp;
+                yl(i)       = 0;
+                Ypos        = find(yl);
                 SO_start    = tic();
                     [yi, li]    = SO(i, D, Ypos, Yneg, k);
                 SO_time     = SO_time + toc(SO_start);
 
                 M           = M + li /batchSize;
-                snew        = PSI(i, yi', n, Ypos, Yneg);
-                S(i,:)      = S(i,:) + snew';
-                S(:,i)      = S(:,i) + snew;
-                S(dIndex)   = S(dIndex) - snew';
-
-                yp(i)       = 1;
+                TS(x,:)     = PSI(i, yi', n, Ypos, Yneg);
+            end
+            for i = 1:length(points)
+                j           = points(i);
+                S(j,:)      = S(j,:)    + TS(i,:);
+                S(:,j)      = S(:,j)    + TS(i,:)';
+                S(dIndex)   = S(dIndex) - TS(i,:);
             end
         end
     end
