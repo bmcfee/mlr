@@ -431,6 +431,7 @@ function H = expandKernel(H)
     m = length(H);
     H = padarray(H, [1 1], 0, 'post');
 
+
     for i = 1:m+1
         H(i,m+1)    = STRUCTKERNEL( PsiR{i}, PsiR{m+1} );
         H(m+1, i)   = H(i, m+1);
