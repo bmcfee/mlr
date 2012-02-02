@@ -10,7 +10,7 @@ function W = dualWDiagMKL(alpha, Z, U, RHO, K)
     for p = 1:nKernels
         W(:,p) = W(:,p) - diag(K(:,:,p)) / RHO;
         for i = 1:m
-            W(:,p) = W(:,p) + alpha(i) * PsiR{i}(:,:,p) / RHO;
+            W(:,p) = W(:,p) + alpha(i) * PsiR{i}(:,p) / RHO;
         end
     end
 
