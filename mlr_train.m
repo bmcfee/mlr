@@ -70,8 +70,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     global FEASIBLE_COUNT;
     FEASIBLE_COUNT = 0;
 
-%     CP          = @cuttingPlaneFull;
-    CP          = @cuttingPlaneParallel;
+    CP          = @cuttingPlaneFull;
     SO          = @separationOracleAUC;
     PSI         = @metricPsiPO;
 

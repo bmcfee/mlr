@@ -1,6 +1,6 @@
-function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, SAMPLES, ClassScores)
+function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSize, SAMPLES, ClassScores)
 %
-% [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Yp, Yn, batchSize, SAMPLES, ClassScores)
+% [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Yp, Yn, batchSize, SAMPLES, ClassScores)
 %
 %   k           = k parameter for the SO
 %   X           = d*n data matrix
@@ -27,31 +27,33 @@ function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, S
     SO_time = 0;
 
     if isempty(ClassScores)
-        for i = 1:batchSize
-            if i > length(SAMPLES)
-                break;
-            end
-            i = SAMPLES(i);
+        TS  = zeros(batchSize, n);
+        parfor i = 1:batchSize
+            if i <= length(SAMPLES)
+                j = SAMPLES(i);
 
-            if isempty(Ypos{i})
-                continue;
-            end
-            if isempty(Yneg)
-                % Construct a negative set 
-                Ynegative = setdiff((1:n)', [i ; Ypos{i}]);
-            else
-                Ynegative = Yneg{i};
-            end
-            SO_start        = tic();
-                [yi, li]    =   SO(i, D, Ypos{i}, Ynegative, k);
-            SO_time         = SO_time + toc(SO_start);
+                if isempty(Ypos{j})
+                    continue;
+                end
+                if isempty(Yneg)
+                    % Construct a negative set 
+                    Ynegative = setdiff((1:n)', [j ; Ypos{j}]);
+                else
+                    Ynegative = Yneg{j};
+                end
+                SO_start        = tic();
+                    [yi, li]    =   SO(j, D, Ypos{j}, Ynegative, k);
+                SO_time         = SO_time + toc(SO_start);
 
-            M               = M + li /batchSize;
-            snew            = PSI(i, yi', n, Ypos{i}, Ynegative);
-            S(i,:)          = S(i,:) + snew';
-            S(:,i)          = S(:,i) + snew;
-            S(dIndex)       = S(dIndex) - snew';
+                M               = M + li /batchSize;
+                TS(i,:)         = PSI(j, yi', n, Ypos{j}, Ynegative);
+            end
         end
+
+        % Reconstruct the S matrix from TS
+        S(SAMPLES,:)    = TS;
+        S(:,SAMPLES)    = S(:,SAMPLES) + TS';
+        S(dIndex)       = S(dIndex) - sum(TS, 1);
     else
 
         % Do it class-wise for efficiency
@@ -65,23 +67,24 @@ function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, S
             if length(points) <= 1
                 continue;
             end
-            for x = 1:length(points)
+
+            TS      = zeros(length(points), n);
+            parfor x = 1:length(points)
                 i           = points(x);
-                yp(i)       = 0;
-                Ypos        = find(yp);
+                yl          = yp;
+                yl(i)       = 0;
+                Ypos        = find(yl);
                 SO_start    = tic();
                     [yi, li]    = SO(i, D, Ypos, Yneg, k);
                 SO_time     = SO_time + toc(SO_start);
 
                 M           = M + li /batchSize;
-
-                snew        = PSI(i, yi', n, Ypos, Yneg);
-                S(i,:)      = S(i,:) + snew';
-                S(:,i)      = S(:,i) + snew;
-                S(dIndex)   = S(dIndex) - snew';
-
-                yp(i)       = 1;
+                TS(x,:)     = PSI(i, yi', n, Ypos, Yneg);
             end
+
+            S(points,:) = S(points,:) + TS;
+            S(:,points) = S(:,points) + TS';
+            S(dIndex)   = S(dIndex) - sum(TS, 1);
         end
     end
 
