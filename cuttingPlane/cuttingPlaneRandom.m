@@ -50,18 +50,26 @@ function [dPsi, M, SO_time] = cuttingPlaneRandom(k, X, W, Ypos, Yneg, batchSize,
 
     SO_time = 0;
 
+    TS = zeros(batchSize, n);
+
     if isempty(ClassScores)
-        for i = Batch
+        parfor j = 1:batchSize
+            i = Batch(j);
+            if isempty(Yneg)
+                Ynegative   = setdiff((1:n)', [i ; Ypos{i}]);
+            else
+                Ynegative   = Yneg{i};
+            end
             SO_start        = tic();
-                [yi, li]    =   SO(i, D, Ypos{i}, Yneg{i}, k);
+                [yi, li]    =   SO(i, D, Ypos{i}, Ynegative, k);
             SO_time         = SO_time + toc(SO_start);
     
             M               = M + li /batchSize;
-            snew            = PSI(i, yi', n, Ypos{i}, Yneg{i});
-            S(i,:)          = S(i,:) + snew';
-            S(:,i)          = S(:,i) + snew;
-            S(dIndex)       = S(dIndex) - snew';
+            TS(j,:)         = PSI(i, yi', n, Ypos{i}, Ynegative);
         end
+        S(Batch,:)      = TS;
+        S(:,Batch)      = S(:,Batch)    + TS';
+        S(dIndex)       = S(dIndex)     - sum(TS, 1);
     else
         for j = 1:length(ClassScores.classes)
             c       = ClassScores.classes(j);

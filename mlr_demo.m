@@ -19,7 +19,7 @@ function mlr_demo()
 
 
     % Optimize W for AUC
-    C = 1e5;
+    C = 1e2;
     display(sprintf('Training with C=%.2e, Delta=mAP', C));
     [W, Xi, Diagnostics] = mlr_train(Xtrain, Ytrain, C, 'map');
 %     [W, Xi, Diagnostics] = mlr_train_primal(Xtrain, Ytrain, C, 'map');
