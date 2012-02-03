@@ -82,7 +82,7 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
                 TS(x,:)     = PSI(i, yi', n, Ypos, Yneg);
             end
 
-            S(points,:) = TS;
+            S(points,:) = S(points,:) + TS;
             S(:,points) = S(:,points) + TS';
             S(dIndex)   = S(dIndex) - sum(TS, 1);
         end
