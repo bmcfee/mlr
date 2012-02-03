@@ -27,7 +27,7 @@ function [W, Xi, Diagnostics] = mlr_solver(C, Margins, W, K)
     armijo      = 1e-5;
     
     % Initial learning rate
-    lambda0     = 1e-6;
+    lambda0     = 1e-4;
 
     % Increase/decrease after each iteration
     lambdaup    = ((1+sqrt(5))/2)^(1/3);

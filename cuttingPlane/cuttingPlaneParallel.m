@@ -69,7 +69,7 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
             end
 
             TS      = zeros(length(points), n);
-            for x = 1:length(points)
+            parfor x = 1:length(points)
                 i           = points(x);
                 yl          = yp;
                 yl(i)       = 0;

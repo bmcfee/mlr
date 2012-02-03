@@ -66,8 +66,10 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     % Default options:
 
     global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT;
+    global FEASIBLE_COUNT;
 
-    CP          = @cuttingPlaneFull;
+%     CP          = @cuttingPlaneFull;
+    CP          = @cuttingPlaneParallel;
     SO          = @separationOracleAUC;
     PSI         = @metricPsiPO;
 
@@ -305,6 +307,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
                             'gap',                  [], ...             % Gap between loss and slack
                             'C',                    C, ...              % Slack trade-off
                             'epsilon',              E, ...              % Convergence threshold
+                            'feasible_count',       0, ...              % Counter for projections
                             'constraint_timer',     ConstraintClock);   % Time before evicting old constraints
 
 
@@ -377,6 +380,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     % Finish diagnostics
 
     Diagnostics.time_total = toc(TIME_START);
+    Diagnostics.feasible_count = FEASIBLE_COUNT;
 end
 
 

@@ -29,7 +29,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 
 
     % Convergence settings
-    MAX_ITER    = 5;
+    MAX_ITER    = 10;
+%     MAX_ITER    = max(5, min(numConstraints, 20));
     ABSTOL      = 1e-3 * sqrt(numel(ADMM_Z));
     RELTOL      = 1e-2;
     stopcriteria= 'MAX STEPS';

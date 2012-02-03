@@ -67,6 +67,9 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT STRUCTKERNEL DUALW INIT;
 
+    global FEASIBLE_COUNT;
+    FEASIBLE_COUNT = 0;
+
 %     CP          = @cuttingPlaneFull;
     CP          = @cuttingPlaneParallel;
     SO          = @separationOracleAUC;
@@ -342,6 +345,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
                             'gap',                  [], ...             % Gap between loss and slack
                             'C',                    C, ...              % Slack trade-off
                             'epsilon',              E, ...              % Convergence threshold
+                            'feasible_count',       FEASIBLE_COUNT, ... % Counter for # svd's
                             'constraint_timer',     ConstraintClock);   % Time before evicting old constraints
 
 
@@ -421,6 +425,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     % Finish diagnostics
 
     Diagnostics.time_total = toc(TIME_START);
+    Diagnostics.feasible_count = FEASIBLE_COUNT;
 end
 
 function H = expandKernel(H)
