@@ -14,7 +14,7 @@ function D = setDistanceFullMKL(X, W, Ifrom, Ito)
     [d,n,m]       = size(X);
 
     D = 0;
-    for i = 1:m
+    parfor i = 1:m
         [vecs,vals] = eig(0.5 * (W(:,:,i) + W(:,:,i)'));
         L           = real(abs(vals)).^0.5 * vecs';
 
