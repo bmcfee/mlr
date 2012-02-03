@@ -50,9 +50,9 @@ function [dPsi, M, SO_time] = cuttingPlaneRandom(k, X, W, Ypos, Yneg, batchSize,
 
     SO_time = 0;
 
-    TS = zeros(batchSize, n);
 
     if isempty(ClassScores)
+        TS = zeros(batchSize, n);
         parfor j = 1:batchSize
             i = Batch(j);
             if isempty(Yneg)
@@ -81,22 +81,22 @@ function [dPsi, M, SO_time] = cuttingPlaneRandom(k, X, W, Ypos, Yneg, batchSize,
             Yneg    = find(ClassScores.Yneg{j});
             yp      = ClassScores.Ypos{j};
 
-            for x = 1:length(points)
+            TS      = zeros(length(points), n);
+            parfor x = 1:length(points)
                 i               = Batch(points(x));
-                yp(i)           = 0;
-                Ypos            = find(yp);
+                yl              = yp;
+                yl(i)           = 0;
+                Ypos            = find(yl);
                 SO_start        = tic();
                     [yi, li]    =   SO(i, D, Ypos, Yneg, k);
                 SO_time         = SO_time + toc(SO_start);
     
                 M               = M + li /batchSize;
-                snew            = PSI(i, yi', n, Ypos, Yneg);
-                S(i,:)          = S(i,:) + snew';
-                S(:,i)          = S(:,i) + snew;
-                S(dIndex)       = S(dIndex) - snew';
-
-                yp(i)           = 1;
+                TS(x,:)         = PSI(i, yi', n, Ypos, Yneg);
             end
+            S(Batch(points),:)  = S(Batch(points),:) + TS;
+            S(:,Batch(points))  = S(:,Batch(points)) + TS';
+            S(dIndex)           = S(dIndex) - sum(TS, 1);
         end
     end
 

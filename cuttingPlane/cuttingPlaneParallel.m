@@ -26,8 +26,8 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
 
     SO_time = 0;
 
-    TS  = zeros(batchSize, n);
     if isempty(ClassScores)
+        TS  = zeros(batchSize, n);
         parfor i = 1:batchSize
             if i <= length(SAMPLES)
                 j = SAMPLES(i);
