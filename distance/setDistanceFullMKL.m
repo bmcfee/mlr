@@ -14,18 +14,18 @@ function D = setDistanceFullMKL(X, W, Ifrom, Ito)
     [d,n,m]       = size(X);
 
     D = 0;
+
+    if nargin < 4
+        Ito     = 1:n;
+    end
+
     parfor i = 1:m
         [vecs,vals] = eig(0.5 * (W(:,:,i) + W(:,:,i)'));
         L           = real(abs(vals)).^0.5 * vecs';
 
         Vfrom   = L * X(:,Ifrom,i);
 
-        if nargin == 4
-            Vto     = L * X(:,Ito,i);
-        else
-            Vto     = L * X(:,:,i);
-            Ito     = 1:n;
-        end
+        Vto     = L * X(:,Ito,i);
 
         D = D + distToFrom(n, Vto, Vfrom, Ito, Ifrom);
     end

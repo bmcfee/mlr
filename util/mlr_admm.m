@@ -21,6 +21,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 
     global ADMM_Z ADMM_U;
 
+    global ADMM_STEPS;
+
     numConstraints = length(PsiR);
 
     Diagnostics = struct(   'f',                [], ...
@@ -29,8 +31,11 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 
 
     % Convergence settings
-    MAX_ITER    = 10;
-%     MAX_ITER    = max(5, min(numConstraints, 20));
+    if ~isempty(ADMM_STEPS)
+        MAX_ITER = ADMM_STEPS;
+    else
+        MAX_ITER = 10;
+    end
     ABSTOL      = 1e-3 * sqrt(numel(ADMM_Z));
     RELTOL      = 1e-2;
     stopcriteria= 'MAX STEPS';
