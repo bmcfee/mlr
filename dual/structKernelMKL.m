@@ -1,4 +1,4 @@
-function H = structKernelMKL(Psi1, Psi2, pass)
+function H = structKernelMKL(Psi1, Psi2)
 
     H = 0;
     for i = 1:size(Psi1, 3)

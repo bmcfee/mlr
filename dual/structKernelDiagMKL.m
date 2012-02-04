@@ -1,4 +1,4 @@
-function H = structKernelDiagMKL(Psi1, Psi2, RESHAPE)
+function H = structKernelDiagMKL(Psi1, Psi2)
 
 
     H = 0;

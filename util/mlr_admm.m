@@ -59,7 +59,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
         %   Gamma   <-- this one's dynamic
 
         for i = 1:numConstraints
-            Gamma(i) = STRUCTKERNEL(ADMM_Z-ADMM_U, PsiR{i}, 1);
+            Gamma(i) = STRUCTKERNEL(ADMM_Z-ADMM_U, PsiR{i});
         end
         alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha);
 

@@ -251,7 +251,9 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     global DEBUG;
     
-    DEBUG = 2;
+    if isempty(DEBUG)
+        DEBUG = 0;
+    end
 
     %%%
     % Timer to eliminate old constraints
