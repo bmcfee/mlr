@@ -43,13 +43,18 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest, Testnorm)
     % Compute dimensionality of the learned metric
     Perf.dimensionality = mlr_test_dimension(W, nTrain, nKernel);
 
-    
+    % Knock out the points with no labels
+    if ~iscell(Ytest)
+        Ibad    = find(isnan(Ytrain));
+        Xtrain(:,Ibad,:) = inf;
+    end
+
     % Build the distance matrix
     [D, I] = mlr_test_distance(W, Xtrain, Xtest, Testnorm);
 
-
     % Compute label agreement
     if ~iscell(Ytest)
+        % First, knock out the points with no label
         Labels  = Ytrain(I);
         Agree   = bsxfun(@eq, Ytest', Labels); 
 
@@ -194,6 +199,9 @@ function [KNN, KNNk] = mlr_test_knn(Labels, Ytest, test_k)
     KNN        = -Inf;
     KNNk       = 0;
     for k = test_k
+        % FIXME:  2012-02-07 16:51:59 by Brian McFee <bmcfee@cs.ucsd.edu>
+        %   fix these to discount nans 
+
         b   = mean( mode( Labels(1:k,:), 1 ) == Ytest');
         if b > KNN
             KNN    = b;

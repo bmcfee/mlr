@@ -291,18 +291,19 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     % Convergence criteria for worst-violated constraint
     E = 1e-3;
     
-    %%%
-    % Augmented lagrangian factor
-    RHO = 1;
-
     %XXX:    2012-01-31 21:29:50 by Brian McFee <bmcfee@cs.ucsd.edu>
     % no longer belongs here
     % Initialize
     W           = INIT(X);
 
-    global ADMM_Z ADMM_U;
+
+    global ADMM_Z ADMM_U RHO;
     ADMM_Z      = W;
     ADMM_U      = 0 * ADMM_Z;
+
+    %%%
+    % Augmented lagrangian factor
+    RHO = 1;
 
     ClassScores = [];
 
@@ -402,7 +403,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         dbprint(1, 'Calling solver...');
         PsiClock                        = PsiClock + 1;
         Solver_time                     = tic();
-            [W, Xi, Dsolver]            = mlr_admm(C, X, Margins, H, Q, RHO);
+            [W, Xi, Dsolver]            = mlr_admm(C, X, Margins, H, Q);
         Diagnostics.time_solver         = Diagnostics.time_solver + toc(Solver_time);
         Diagnostics.num_calls_solver    = Diagnostics.num_calls_solver + 1;
 

@@ -1,4 +1,4 @@
-function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
+function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
 % [W, Xi, D] = mlr_admm(C, Delta, W, X)
 %
 %   C       >= 0    Slack trade-off parameter
@@ -6,7 +6,6 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 %   Delta   =       array of mean margin values
 %   H       =       structural kernel matrix
 %   Q       =       kernel-structure interaction vector
-%   RHO     > 0     augmented lagrangian term
 %
 %   W (output)  =   the learned metric
 %   Xi          =   1-slack
@@ -23,6 +22,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 
     global ADMM_STEPS;
 
+    global RHO;
+
     numConstraints = length(PsiR);
 
     Diagnostics = struct(   'f',                [], ...
@@ -38,6 +39,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
     end
     ABSTOL      = 1e-3 * sqrt(numel(ADMM_Z));
     RELTOL      = 1e-2;
+    SCALE_THRESH    = 10;
+    RHO_RESCALE     = 2;
     stopcriteria= 'MAX STEPS';
 
     % Objective function
@@ -48,6 +51,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
     alpha           = zeros(numConstraints,  1);
     Gamma           = zeros(numConstraints,  1);
 
+    ln1 = 0;
+    ln2 = 0;
     for step = 1:MAX_ITER
         % do a w-update
         % dubstep needs:
@@ -92,11 +97,24 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q, RHO)
 
         eps_primal = ABSTOL + RELTOL * max(norm(W(:)), norm(ADMM_Z(:)));
         eps_dual   = ABSTOL + RELTOL * RHO * norm(ADMM_U(:));
+%             figure(2), loglog(step + (0:1), [ln1, N1/eps_primal], 'b'), xlim([0, MAX_ITER]), hold('on');
+%             figure(2), loglog(step + (0:1), [ln2, N2/eps_dual], 'r-'), xlim([0, MAX_ITER]), hold('on'), drawnow;
+            ln1 = N1/eps_primal;
+            ln2 = N2/eps_dual;
         if N1 < eps_primal && N2 < eps_dual
             stopcriteria = 'CONVERGENCE';
             break;
         end
+
+        if N1 > SCALE_THRESH * N2
+            dbprint(3, sprintf('RHO: %.2e UP %.2e', RHO, RHO * RHO_RESCALE));
+            RHO = RHO * RHO_RESCALE;
+        elseif N2 > SCALE_THRESH * N1
+            dbprint(3, sprintf('RHO: %.2e DN %.2e', RHO, RHO / RHO_RESCALE));
+            RHO = RHO / RHO_RESCALE;
+        end
     end
+%     figure(2), hold('off');
 
     %%%
     % Ensure feasibility

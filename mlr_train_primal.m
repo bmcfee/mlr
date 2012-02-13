@@ -67,6 +67,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
 
     global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT;
     global FEASIBLE_COUNT;
+    FEASIBLE_COUNT = 0;
 
     CP          = @cuttingPlaneFull;
     SO          = @separationOracleAUC;
