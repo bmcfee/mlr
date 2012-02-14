@@ -1,6 +1,6 @@
-function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSize, SAMPLES, ClassScores)
+function [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Ypos, Yneg, batchSize, SAMPLES, ClassScores)
 %
-% [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Yp, Yn, batchSize, SAMPLES, ClassScores)
+% [dPsi, M, SO_time] = cuttingPlaneFull(k, X, W, Yp, Yn, batchSize, SAMPLES, ClassScores)
 %
 %   k           = k parameter for the SO
 %   X           = d*n data matrix
@@ -57,6 +57,7 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
     else
 
         % Do it class-wise for efficiency
+        batchSize = 0;
         for j = 1:length(ClassScores.classes)
             c       = ClassScores.classes(j);
             points  = find(ClassScores.Y == c);
@@ -68,6 +69,7 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
                 continue;
             end
 
+            batchSize = batchSize + length(points);
             TS      = zeros(length(points), n);
             parfor x = 1:length(points)
                 i           = points(x);
@@ -78,7 +80,7 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
                     [yi, li]    = SO(i, D, Ypos, Yneg, k);
                 SO_time     = SO_time + toc(SO_start);
 
-                M           = M + li /batchSize;
+                M           = M + li;
                 TS(x,:)     = PSI(i, yi', n, Ypos, Yneg);
             end
 
@@ -86,6 +88,7 @@ function [dPsi, M, SO_time] = cuttingPlaneParallel(k, X, W, Ypos, Yneg, batchSiz
             S(:,points) = S(:,points) + TS';
             S(dIndex)   = S(dIndex) - sum(TS, 1);
         end
+        M   = M / batchSize;
     end
 
     dPsi    = CPGRADIENT(X, S, batchSize);

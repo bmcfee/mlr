@@ -45,7 +45,7 @@ function mlr_plot(X, Y, W, D)
     % Now show some diagnostics
 
     figure;
-    subplot(2,1,1), plot(D.f), title('Objective');
+    subplot(2,1,1), semilogy(D.f), title('Objective');
     subplot(2,1,2), barh([D.time_SO, D.time_solver D.time_total]), ...
                     title('Time% in SO/solver/total');
 

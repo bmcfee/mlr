@@ -387,6 +387,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         H           = expandKernel(H);
         Q           = expandRegularizer(Q, X, W);
 
+
         dbprint(2, '\n\tActive constraints    : %d',            length(PsiClock));
         dbprint(2, '\t           Mean loss  : %0.4f',           Mnew);
         dbprint(2, '\t  Current loss Xi     : %0.4f',           Xi);

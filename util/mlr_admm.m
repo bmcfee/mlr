@@ -37,8 +37,8 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
     else
         MAX_ITER = 10;
     end
-    ABSTOL      = 1e-3 * sqrt(numel(ADMM_Z));
-    RELTOL      = 1e-2;
+    ABSTOL      = 1e-4 * sqrt(numel(ADMM_Z));
+    RELTOL      = 1e-3;
     SCALE_THRESH    = 10;
     RHO_RESCALE     = 2;
     stopcriteria= 'MAX STEPS';
@@ -81,26 +81,26 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         % Update residuals
         ADMM_U  = ADMM_U + W - ADMM_Z;
 
-        % Compute objective
+        % Compute primal objective
         %   slack term
         Xi      = 0;
         for R = numConstraints:-1:1
-            Xi = max(Xi, LOSS(W, PsiR{R}, Delta(R), 0));
+            Xi = max(Xi, LOSS(ADMM_Z, PsiR{R}, Delta(R), 0));
         end
-        N1          = norm(W(:)-ADMM_Z(:));
-        F(step)     = C * Xi + REG(W, K, 0) + RHO / 2 * N1^2;
+        F(step)     = C * Xi + REG(ADMM_Z, K, 0);
         
 %         figure(2), loglog(1:step, F(1:step)), xlim([0, MAX_ITER]), drawnow;
         % Test for convergence
 
-        N2 = RHO * norm(Zold(:) - ADMM_Z(:));
+        N1          = norm(W(:)-ADMM_Z(:));
+        N2          = RHO * norm(Zold(:) - ADMM_Z(:));
 
         eps_primal = ABSTOL + RELTOL * max(norm(W(:)), norm(ADMM_Z(:)));
         eps_dual   = ABSTOL + RELTOL * RHO * norm(ADMM_U(:));
-%             figure(2), loglog(step + (0:1), [ln1, N1/eps_primal], 'b'), xlim([0, MAX_ITER]), hold('on');
-%             figure(2), loglog(step + (0:1), [ln2, N2/eps_dual], 'r-'), xlim([0, MAX_ITER]), hold('on'), drawnow;
-            ln1 = N1/eps_primal;
-            ln2 = N2/eps_dual;
+%             figure(2), loglog(step + (-1:0), [ln1, N1/eps_primal], 'b'), xlim([0, MAX_ITER]), hold('on');
+%             figure(2), loglog(step + (-1:0), [ln2, N2/eps_dual], 'r-'), xlim([0, MAX_ITER]), hold('on'), drawnow;
+%             ln1 = N1/eps_primal;
+%             ln2 = N2/eps_dual;
         if N1 < eps_primal && N2 < eps_dual
             stopcriteria = 'CONVERGENCE';
             break;
