@@ -109,9 +109,11 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         if N1 > SCALE_THRESH * N2
             dbprint(3, sprintf('RHO: %.2e UP %.2e', RHO, RHO * RHO_RESCALE));
             RHO = RHO * RHO_RESCALE;
+            ADMM_U  = ADMM_U / RHO_RESCALE;
         elseif N2 > SCALE_THRESH * N1
             dbprint(3, sprintf('RHO: %.2e DN %.2e', RHO, RHO / RHO_RESCALE));
             RHO = RHO / RHO_RESCALE;
+            ADMM_U  = ADMM_U * RHO_RESCALE;
         end
     end
 %     figure(2), hold('off');
