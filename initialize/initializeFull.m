@@ -4,5 +4,6 @@ function W = initializeFull(X)
 
     W = diag(1./std(X,1,2));
     W(isinf(W)) = 1;
+    W(isnan(W)) = 1;
 
 end

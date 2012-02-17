@@ -1,4 +1,4 @@
-function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest, Testnorm)
+function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
 %   Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
 %
 %       W       = d-by-d positive semi-definite matrix
@@ -33,24 +33,32 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest, Testnorm)
                 );
 
     [d, nTrain, nKernel] = size(Xtrain);
-    nTest       = length(Ytest);
-    test_k      = min(test_k, nTrain);
-
-    if nargin < 7
-        Testnorm = [];
-    end
-
     % Compute dimensionality of the learned metric
     Perf.dimensionality = mlr_test_dimension(W, nTrain, nKernel);
+    test_k      = min(test_k, nTrain);
 
-    % Knock out the points with no labels
-    if ~iscell(Ytest)
-        Ibad    = find(isnan(Ytrain));
-        Xtrain(:,Ibad,:) = inf;
+    if nargin > 4
+        % Knock out the points with no labels
+        if ~iscell(Ytest)
+            Ibad                = find(isnan(Ytrain));
+            Xtrain(:,Ibad,:)    = inf;
+        end
+
+        % Build the distance matrix
+        [D, I] = mlr_test_distance(W, Xtrain, Xtest);
+    else
+        % Leave-one-out validation
+        Xtest       = Xtrain;
+        Ytest       = Ytrain;
+
+        % compute self-distance
+        [D, I]  = mlr_test_distance(W, Xtrain, Xtest);
+        % clear out the self-link (distance = 0)
+        I       = I(2:end,:);
+        D       = D(2:end,:);
     end
-
-    % Build the distance matrix
-    [D, I] = mlr_test_distance(W, Xtrain, Xtest, Testnorm);
+    
+    nTest       = length(Ytest);
 
     % Compute label agreement
     if ~iscell(Ytest)
@@ -86,7 +94,7 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest, Testnorm)
 end
 
 
-function [D,I] = mlr_test_distance(W, Xtrain, Xtest, Testnorm)
+function [D,I] = mlr_test_distance(W, Xtrain, Xtest)
 
     % CASES:
     %   Raw:                        W = []
@@ -105,7 +113,7 @@ function [D,I] = mlr_test_distance(W, Xtrain, Xtest, Testnorm)
 
     if isempty(W)
         % W = []  => native euclidean distances
-        D = mlr_test_distance_raw(Xtrain, Xtest, Testnorm);
+        D = mlr_test_distance_raw(Xtrain, Xtest);
 
     elseif size(W,1) == d && size(W,2) == d
         % We're in a full-projection case
@@ -203,7 +211,7 @@ function [KNN, KNNk] = mlr_test_knn(Labels, Ytest, test_k)
         %   fix these to discount nans 
 
         b   = mean( mode( Labels(1:k,:), 1 ) == Ytest');
-        if b > KNN
+        if b >= KNN
             KNN    = b;
             KNNk   = k;
         end
@@ -241,27 +249,17 @@ function AUC = mlr_test_auc(Agree)
 end
 
 
-function D = mlr_test_distance_raw(Xtrain, Xtest, Testnorm)
+function D = mlr_test_distance_raw(Xtrain, Xtest)
 
     [d, nTrain, nKernel] = size(Xtrain);
     nTest = size(Xtest, 2);
 
-    if isempty(Testnorm)
         % Not in kernel mode, compute distances directly
         D = 0;
         for i = 1:nKernel
             D = D + setDistanceDiag([Xtrain(:,:,i) Xtest(:,:,i)], ones(d,1), ...
                                     nTrain + (1:nTest), 1:nTrain);
         end
-    else
-        % We are in kernel mode
-        D = sparse(nTrain + nTest, nTrain + nTest);
-        for i = 1:nKernel
-            Trainnorm = diag(Xtrain(:,:,i));
-            D(1:nTrain, nTrain + (1:nTest)) = D(1:nTrain, nTrain + (1:nTest)) ...
-                +  bsxfun(@plus, Trainnorm, bsxfun(@plus, Testnorm(:,i)', -2 * Xtest(:,:,i)));
-        end
-    end
 end
 
 function A = reduceAgreement(Agree)
