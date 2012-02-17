@@ -69,10 +69,15 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
         % We only compute KNN error if Y are labels
         [Perf.KNN, Perf.KNNk] = mlr_test_knn(Labels, Ytest, test_k);
     else
-        Agree   = zeros(nTrain, nTest);
+        if nargin > 4
+            Agree   = zeros(nTrain, nTest);
+        else
+            Agree   = zeros(nTrain-1, nTest);
+        end
         for i = 1:nTest
             Agree(:,i) = ismember(I(:,i), Ytest{i,1});
         end
+
         Agree = reduceAgreement(Agree);
     end
 
@@ -211,7 +216,7 @@ function [KNN, KNNk] = mlr_test_knn(Labels, Ytest, test_k)
         %   fix these to discount nans 
 
         b   = mean( mode( Labels(1:k,:), 1 ) == Ytest');
-        if b >= KNN
+        if b > KNN
             KNN    = b;
             KNNk   = k;
         end
