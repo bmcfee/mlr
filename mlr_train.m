@@ -263,6 +263,7 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
             batchSize   = varargin{5};
         end
     end
+
     % Algorithm
     %
     % Working <- []
@@ -328,6 +329,10 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         error('MLR:LABELS', 'Incorrect format for Y.');
     end
 
+    %%
+    % If we don't have enough data to make the batch, cut the batch
+    batchSize = min([batchSize, length(SAMPLES)]);
+
 
     Diagnostics = struct(   'loss',                 Loss, ...           % Which loss are we optimizing?
                             'feature',              Feature, ...        % Which ranking feature is used?
@@ -367,7 +372,9 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
         dbprint(1, 'STOCHASTIC OPTIMIZATION: Batch size is %d/%d', batchSize, n);
     end
 
-    while 1
+    MAXITER = 200;
+%     while 1
+    while Diagnostics.num_calls_solver < MAXITER
         dbprint(1, 'Round %03d', Diagnostics.num_calls_solver);
         % Generate a constraint set
         Termination = 0;

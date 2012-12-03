@@ -37,7 +37,7 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
     Perf.dimensionality = mlr_test_dimension(W, nTrain, nKernel);
     test_k      = min(test_k, nTrain);
 
-    if nargin > 4
+    if nargin > 5
         % Knock out the points with no labels
         if ~iscell(Ytest)
             Ibad                = find(isnan(Ytrain));
@@ -48,8 +48,15 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
         [D, I] = mlr_test_distance(W, Xtrain, Xtest);
     else
         % Leave-one-out validation
-        Xtest       = Xtrain;
-        Ytest       = Ytrain;
+
+        if nargin > 4 
+            % In this case, Xtest is a subset of training indices to test on
+            testRange = Xtest;
+        else
+            testRange = 1:nTrain;
+        end
+        Xtest       = Xtrain(:,testRange,:);
+        Ytest       = Ytrain(testRange);
 
         % compute self-distance
         [D, I]  = mlr_test_distance(W, Xtrain, Xtest);
@@ -69,7 +76,7 @@ function Perf = mlr_test(W, test_k, Xtrain, Ytrain, Xtest, Ytest)
         % We only compute KNN error if Y are labels
         [Perf.KNN, Perf.KNNk] = mlr_test_knn(Labels, Ytest, test_k);
     else
-        if nargin > 4
+        if nargin > 5
             Agree   = zeros(nTrain, nTest);
         else
             Agree   = zeros(nTrain-1, nTest);

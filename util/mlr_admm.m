@@ -162,6 +162,7 @@ function alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha)
     % 2) solve the QP
     %
     alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
+%     alpha = qplcprog(H, b, [], [], ones(1, m), C, 0, []);
 
     %%%
     % 3) update the Psi clock
