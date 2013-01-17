@@ -66,6 +66,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         for i = 1:numConstraints
             Gamma(i) = STRUCTKERNEL(ADMM_Z-ADMM_U, PsiR{i});
         end
+        
         alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha);
 
         %%%
@@ -73,7 +74,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         %
         W = DUALW(alpha, ADMM_Z, ADMM_U, RHO, K);
 
-%         figure(1), imagesc(W), drawnow;
+            figure(1), imagesc(W), drawnow;
         % Update Z
         Zold    = ADMM_Z;
         ADMM_Z  = FEASIBLE(W + ADMM_U);
@@ -89,7 +90,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         end
         F(step)     = C * Xi + REG(ADMM_Z, K, 0);
         
-%         figure(2), loglog(1:step, F(1:step)), xlim([0, MAX_ITER]), drawnow;
+%           figure(2), loglog(1:step, F(1:step)), xlim([0, MAX_ITER]), drawnow;
         % Test for convergence
 
         N1          = norm(W(:)-ADMM_Z(:));
@@ -97,10 +98,10 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
 
         eps_primal = ABSTOL + RELTOL * max(norm(W(:)), norm(ADMM_Z(:)));
         eps_dual   = ABSTOL + RELTOL * RHO * norm(ADMM_U(:));
-%             figure(2), loglog(step + (-1:0), [ln1, N1/eps_primal], 'b'), xlim([0, MAX_ITER]), hold('on');
-%             figure(2), loglog(step + (-1:0), [ln2, N2/eps_dual], 'r-'), xlim([0, MAX_ITER]), hold('on'), drawnow;
-%             ln1 = N1/eps_primal;
-%             ln2 = N2/eps_dual;
+%               figure(2), loglog(step + (-1:0), [ln1, N1/eps_primal], 'b'), xlim([0, MAX_ITER]), hold('on');
+%               figure(2), loglog(step + (-1:0), [ln2, N2/eps_dual], 'r-'), xlim([0, MAX_ITER]), hold('on'), drawnow;
+%              ln1 = N1/eps_primal;
+%              ln2 = N2/eps_dual;
         if N1 < eps_primal && N2 < eps_dual
             stopcriteria = 'CONVERGENCE';
             break;
@@ -162,7 +163,6 @@ function alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha)
     % 2) solve the QP
     %
     alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
-%     alpha = qplcprog(H, b, [], [], ones(1, m), C, 0, []);
 
     %%%
     % 3) update the Psi clock
