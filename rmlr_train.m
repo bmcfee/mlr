@@ -252,7 +252,8 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
         DEBUG = 0;
     end
 
-    DEBUG = 3;
+    DEBUG = 1;
+
     %%%
     % Max calls to seperation oracle
     MAX_CALLS = 200;

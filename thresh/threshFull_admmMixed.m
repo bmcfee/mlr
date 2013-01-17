@@ -41,7 +41,7 @@ function result = threshFull_admmMixed(R,lam);
             
         end
     end
-    disp(['Iterations: ' num2str(iter)]);
+    %disp(['Iterations: ' num2str(iter)]);
     %disp(['PR: ' num2str(pr) 'DR: ' num2str(dr)])
     result = V;
 end
