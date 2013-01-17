@@ -39,14 +39,13 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
 %           3:          Kernel: trace(W * X), assumes X is square and positive-definite
 %
 %   [W, Xi, D] = rmlr_train(X, Y, C, LOSS, k, REG, Diagonal)
-%   Diagonal doesn't do anything, just reduces to MLR because ||W||_2,1 = trace(W) when W diagonal. 
-%   Not removed so there are parallels in the code when calling MLR/RMLR.
+%   Not implemented as learning a diagonal W metric just reduces to MLR because ||W||_2,1 = trace(W) when W is diagonal. 
 %       
 %   [W, Xi, D] = rmlr_train(X, Y, C, LOSS, k, REG, Diagonal, B)
 %       where B > 0 enables stochastic optimization with batch size B
 %
 %   [W, Xi, D] = rmlr_train(X, Y, C, LOSS, k, REG, Diagonal, B, lambda)
-%	Sets value of lambda, hyperparameter for ||W||_2,1. Default is 1 if lambda is not set
+%	lambda is the desired value of the hyperparameter which is the coefficient of ||W||_2,1. Default is 1 if lambda is not set
 
 
     TIME_START = tic();
@@ -72,8 +71,6 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
     global CP SO PSI REG FEASIBLE LOSS DISTANCE SETDISTANCE CPGRADIENT STRUCTKERNEL DUALW THRESH INIT;
     global RHO;
  
-    % Modified by Daryl 2012-04-17 
-    % <modified>
 
     %%%
     % Augmented lagrangian factor
@@ -180,7 +177,7 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
             case {0}
                 REG         = @regularizeNone;
                 Regularizer = 'None';
-                 THRESH      = @threshFull_admmMixed;
+                THRESH      = @threshFull_admmMixed;
             case {1}
                 if MKL
                         REG         = @regularizeMKLFull;
@@ -258,7 +255,7 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
     DEBUG = 3;
     %%%
     % Max calls to seperation oracle
-    MAX_CALLS = 10000;
+    MAX_CALLS = 200;
     MIN_CALLS = 10;
     %%%
     % Timer to eliminate old constraints

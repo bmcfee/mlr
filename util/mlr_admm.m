@@ -74,7 +74,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         %
         W = DUALW(alpha, ADMM_Z, ADMM_U, RHO, K);
 
-            figure(1), imagesc(W), drawnow;
+        %figure(1), imagesc(W), drawnow;
         % Update Z
         Zold    = ADMM_Z;
         ADMM_Z  = FEASIBLE(W + ADMM_U);

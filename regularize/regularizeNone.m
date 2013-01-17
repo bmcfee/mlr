@@ -4,5 +4,9 @@ function r = regularizeNone(W, X, gradient)
 %   
 %   Always returns 0
 
-    r = 0;
+    if gradient    
+    	    r = zeros(size(W));
+    else
+	    r = 0;
+    end
 end

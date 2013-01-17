@@ -72,7 +72,7 @@ for step = 1:MAX_ITER
     for i = 1:numConstraints
         Gamma(i) = STRUCTKERNEL(ADMM_Z-ADMM_UW, PsiR{i});
     end
-%     d = length(K);
+    %     d = length(K);
     alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha);
     
     %%%
@@ -80,7 +80,7 @@ for step = 1:MAX_ITER
     %
     W = DUALW(alpha, ADMM_Z, ADMM_UW, RHO, K);
     
-                figure(1), imagesc(W), drawnow;
+    %   figure(1), imagesc(W), drawnow;
     
     % Update V
     ADMM_V = THRESH(ADMM_Z - ADMM_UV, lam/RHO);
