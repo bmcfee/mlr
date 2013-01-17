@@ -82,4 +82,3 @@ function drawData(W, Xtrain, Ytrain, Xtest, Ytest);
     end
     legend({'Training', 'Test'});
 end
-a
