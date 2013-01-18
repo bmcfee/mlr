@@ -3,7 +3,7 @@ http://www-cse.ucsd.edu/~bmcfee/code/mlr/
 
 AUTHORS:
 Brian McFee <bmcfee@cs.ucsd.edu>
-Daryl Lim <khdlim@ucsd.edu>
+Daryl Lim <dklim@ucsd.edu>
 
 This code is distributed under the GNU GPL license.  See LICENSE for details
 or http://www.gnu.org/licenses/gpl-3.0.txt
@@ -26,7 +26,8 @@ Please cite this paper if you use this code.
 If you use the Robust MLR code (rmlr_train), please cite:
 
 [2] Lim, D.K.H., McFee, B. and Lanckriet, G.R.G. Robust structural metric learning.
-    Proceedings of the 30th annual International Conference on Machine Learning. 2013.
+    Proceedings of the 30th annual International Conference on Machine Learning (ICML),
+    2013.
 
 
 INSTALLATION
