@@ -23,8 +23,8 @@ function rmlr_demo()
     Xtest   = X(:,P((1+floor(0.8*n)):end));
     Ytest   = Y(P((1+floor(0.8*n)):end));
     
-    C = 1e6;
-    lam = 0.1;
+    C = 1e2;
+    lam = 0.5;
    
     display(sprintf('Training with C=%.2e, Delta=MAP', C));
     %learn metric with R-MLR
@@ -45,9 +45,12 @@ function rmlr_demo()
     % Scatter-plot
     figure;
     subplot(1,3,1), drawData(eye(d), Xtrain, Ytrain, Xtest, Ytest), title('Native metric (z-scored)');
-    subplot(1,3,2), drawData(W_rmlr, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (RMLR)');
-    subplot(1,3,3), drawData(W_mlr, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR)');
+    subplot(1,3,2), drawData(W_mlr, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR)');
+    subplot(1,3,3), drawData(W_rmlr, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (RMLR)');
 
+    figure;
+    subplot(121), imagesc(W_mlr), title('W: MLR');
+    subplot(122), imagesc(W_rmlr), title('W: RMLR');
     Diagnostics_rmlr
     Diagnostics_mlr
 

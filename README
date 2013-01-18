@@ -1,10 +1,12 @@
-Metric Learning to Rank (mlr-1.1)
+Metric Learning to Rank (mlr-1.2)
 http://www-cse.ucsd.edu/~bmcfee/code/mlr/
 
-Brian McFee <bmcfee@cs.ucsd.edu>, 2010-2011.
+AUTHORS:
+Brian McFee <bmcfee@cs.ucsd.edu>
+Daryl Lim <khdlim@ucsd.edu>
 
-This code is distributed under the GNU GPL license.  See LICENSE for details, 
-or http://www.gnu.org/licenses/gpl-3.0.txt .
+This code is distributed under the GNU GPL license.  See LICENSE for details
+or http://www.gnu.org/licenses/gpl-3.0.txt
 
 
 
@@ -15,13 +17,16 @@ The latest version of this software can be found at the URL above.
 
 The software included here implements the algorithm described in
 
-[1] Mcfee, Brian and Lanckriet, G.R.G.  Metric learning to rank.  
+[1] McFee, Brian and Lanckriet, G.R.G.  Metric learning to rank.  
     Proceedings of the 27th annual International Conference 
     on Machine Learning (ICML), 2010.
 
 Please cite this paper if you use this code.
 
+If you use the Robust MLR code (rmlr_train), please cite:
 
+[2] Lim, D.K.H., McFee, B. and Lanckriet, G.R.G. Robust structural metric learning.
+    Proceedings of the 30th annual International Conference on Machine Learning. 2013.
 
 
 INSTALLATION
@@ -199,7 +204,7 @@ MULTIPLE KERNEL LEARNING
 
 As of version 1.1, MLR supports learning (multiple) kernel metrics, using the method described in
 
-[2] Galleguillos, Carolina, McFee, Brian, Belongie, Serge, and Lanckriet, G.R.G.  
+[3] Galleguillos, Carolina, McFee, Brian, Belongie, Serge, and Lanckriet, G.R.G.  
     From region similarity to category discovery.
     Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition (CVPR), 2011.
 
