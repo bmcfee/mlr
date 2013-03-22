@@ -301,6 +301,9 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
         error('MLR:LABELS', 'Incorrect format for Y.');
     end
 
+    %%
+    % If we don't have enough data to make the batch, cut the batch
+    batchSize = min([batchSize, length(SAMPLES)]);
 
     Diagnostics = struct(   'loss',                 Loss, ...           % Which loss are we optimizing?
                             'feature',              Feature, ...        % Which ranking feature is used?
