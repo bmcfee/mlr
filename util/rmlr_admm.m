@@ -35,11 +35,12 @@ Diagnostics = struct(   'f',                [], ...
 if ~isempty(ADMM_STEPS)
     MAX_ITER = ADMM_STEPS;
 else
-    MAX_ITER = 10;
+    MAX_ITER = 20;
 end
 ABSTOL      = 1e-4 * sqrt(numel(ADMM_Z));
 RELTOL      = 1e-3;
 SCALE_THRESH    = 10;
+RHO		= 1e-1;
 RHO_RESCALE     = 2;
 stopcriteria= 'MAX STEPS';
 
@@ -54,11 +55,6 @@ Gamma           = zeros(numConstraints,  1);
 ln1 = 0;
 ln2 = 0;
 
-% figure(2)
-% hold off
-% plot(0)
-% delete(abc)
-% delete(abc2)
 for step = 1:MAX_ITER
     % do a w-update
     % dubstep needs:
@@ -117,6 +113,7 @@ for step = 1:MAX_ITER
 %            figure(2), loglog(step + (-1:0), [ln2, N2/eps_dual], 'r-'), xlim([0, MAX_ITER]), hold('on'), drawnow;
 %           ln1 = N1/eps_primal;
 %           ln2 = N2/eps_dual;
+
     
     if N1 < eps_primal && N2 < eps_dual
         stopcriteria = 'CONVERGENCE';
@@ -178,7 +175,8 @@ b = RHO * (Gamma - Delta) - Q;
 %%%
 % 2) solve the QP
 %
-alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
+% alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
+alpha = qp_admm(H, b, C);
 
 %%%
 % 3) update the Psi clock
