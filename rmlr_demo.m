@@ -23,7 +23,7 @@ function rmlr_demo()
     Xtest   = X(:,P((1+floor(0.8*n)):end));
     Ytest   = Y(P((1+floor(0.8*n)):end));
     
-    C = 1e6;
+    C = 1e3;
     lam = 0.1;
 
     display(sprintf('Training with C=%.2e, Delta=MAP', C));
@@ -48,8 +48,9 @@ function rmlr_demo()
     subplot(1,3,2), drawData(W_rmlr, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (RMLR)');
     subplot(1,3,3), drawData(W_mlr, Xtrain, Ytrain, Xtest, Ytest), title('Learned metric (MLR)');
 
-    figure;imagesc(W_rmlr);
-    figure;imagesc(W_mlr);
+    figure;
+    subplot(1,2,1), imagesc(W_rmlr), title('W (RMLR)');
+    subplot(1,2,2), imagesc(W_mlr), title('W (MLR)');
 %     Diagnostics_rmlr
 %     Diagnostics_mlr
 
