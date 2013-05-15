@@ -35,12 +35,13 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
     if ~isempty(ADMM_STEPS)
         MAX_ITER = ADMM_STEPS;
     else
-        MAX_ITER = 10;
+        MAX_ITER = 20;
     end
     ABSTOL      = 1e-4 * sqrt(numel(ADMM_Z));
     RELTOL      = 1e-3;
     SCALE_THRESH    = 10;
     RHO_RESCALE     = 2;
+    RHO		    = 1e-1;
     stopcriteria= 'MAX STEPS';
 
     % Objective function
@@ -74,7 +75,7 @@ function [W, Xi, Diagnostics] = mlr_admm(C, K, Delta, H, Q)
         %
         W = DUALW(alpha, ADMM_Z, ADMM_U, RHO, K);
 
-        %figure(1), imagesc(W), drawnow;
+%         figure(1), imagesc(W), drawnow;
         % Update Z
         Zold    = ADMM_Z;
         ADMM_Z  = FEASIBLE(W + ADMM_U);
@@ -162,8 +163,8 @@ function alpha = mlr_dual(C, RHO, H, Q, Delta, Gamma, alpha)
     %%%
     % 2) solve the QP
     %
-    alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
-
+    %alpha = qplcprog(H, b, ones(1, m), C, [], [], 0, []);
+    alpha = qp_admm(H, b, C);
     %%%
     % 3) update the Psi clock
     %

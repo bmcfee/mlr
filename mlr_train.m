@@ -302,10 +302,6 @@ function [W, Xi, Diagnostics] = mlr_train(X, Y, Cslack, varargin)
     ADMM_Z      = W;
     ADMM_U      = 0 * ADMM_Z;
 
-    %%%
-    % Augmented lagrangian factor
-    RHO = 1;
-
     ClassScores = [];
 
     if isa(Y, 'double')

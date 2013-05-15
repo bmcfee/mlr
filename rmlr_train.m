@@ -72,10 +72,6 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
     global RHO;
  
 
-    %%%
-    % Augmented lagrangian factor
-    RHO = 1;
-
     % </modified>
 
     global FEASIBLE_COUNT;
@@ -91,7 +87,7 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
         STRUCTKERNEL= @structKernelLinear;
         DUALW       = @dualWLinear;
         FEASIBLE    = @feasibleFull;
-        THRESH	    = @threshFull_admmMixed;
+        THRESH	    = @threshFull_mixed;
         CPGRADIENT  = @cpGradientFull;
         DISTANCE    = @distanceFull;
         SETDISTANCE = @setDistanceFull;
@@ -103,7 +99,7 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
         STRUCTKERNEL= @structKernelMKL;
         DUALW       = @dualWMKL;
         FEASIBLE    = @feasibleFullMKL;
-	THRESH	    = @threshFull_admmMixed;
+	THRESH	    = @threshFull_mixed;
 	CPGRADIENT  = @cpGradientFullMKL;
         DISTANCE    = @distanceFullMKL;
         SETDISTANCE = @setDistanceFullMKL;
@@ -177,7 +173,7 @@ function [W, Xi, Diagnostics] = rmlr_train(X, Y, Cslack, varargin)
             case {0}
                 REG         = @regularizeNone;
                 Regularizer = 'None';
-                THRESH      = @threshFull_admmMixed;
+                THRESH      = @threshFull_mixed;
             case {1}
                 if MKL
                         REG         = @regularizeMKLFull;
