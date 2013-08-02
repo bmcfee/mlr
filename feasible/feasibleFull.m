@@ -8,7 +8,6 @@ function W = feasibleFull(W)
     global FEASIBLE_COUNT;
     FEASIBLE_COUNT = FEASIBLE_COUNT + 1;
 
-    [v,d]   = eig(0.5 * (W + W'));
-    W       = v * bsxfun(@times, max(real(diag(d)),0), v');
+    W = psd_sparse(W);
 end
 

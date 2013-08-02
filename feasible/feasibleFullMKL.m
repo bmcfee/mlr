@@ -9,8 +9,7 @@ function W = feasibleFullMKL(W)
     FEASIBLE_COUNT = FEASIBLE_COUNT + m;
 
     parfor i = 1:m
-        [v,d]       = eig(0.5 * (W(:,:,i) + W(:,:,i)'));
-        W(:,:,i)    = v * bsxfun(@times, max(real(diag(d)),0), v');
+        W(:,:,i)    = psd_sparse(W(:,:,i));
     end
 end
 
