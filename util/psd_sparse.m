@@ -4,7 +4,7 @@ function W = psd_sparse(A)
     %
 
     % Compute the row sums
-    z       = sum(abs(A), 1);
+    z       = mean(abs(A), 1);
 
     % find the non-zero columns
     THRESH  = 1e-10;
